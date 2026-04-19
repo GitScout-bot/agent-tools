@@ -31,7 +31,7 @@ npm install @agent-tools/token-counter
 
 ## Contributing
 
-We welcome contributions! This project is part of the [GitTensor](https://gittensor.io) ecosystem — contributors can earn TAO rewards for merged PRs and resolved issues.
+We welcome contributions! This project is part of the [Gittensor](https://gittensor.io) ecosystem — contributors can earn TAO rewards for merged PRs and resolved issues.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 

@@ -1,6 +1,6 @@
 # Contributing to Agent Tools
 
-Thank you for your interest in contributing! This project is part of the [GitTensor](https://gittensor.io) ecosystem (Bittensor Subnet 74). Quality contributions can earn TAO rewards.
+Thank you for your interest in contributing! This project is part of the [Gittensor](https://gittensor.io) ecosystem (Bittensor Subnet 74). Quality contributions can earn TAO rewards.
 
 ## Getting Started
 
