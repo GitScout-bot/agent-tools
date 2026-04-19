@@ -1,0 +1,19 @@
+{
+  "name": "@agent-tools/retry",
+  "version": "0.1.0",
+  "description": "Retry with exponential backoff, jitter, and abort support",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test src/__tests__/retry.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["retry", "backoff", "exponential", "agent", "ai"],
+  "license": "MIT",
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

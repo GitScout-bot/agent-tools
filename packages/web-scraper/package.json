@@ -1,0 +1,19 @@
+{
+  "name": "@agent-tools/web-scraper",
+  "version": "0.1.0",
+  "description": "Extract clean text and structured data from web pages",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test src/__tests__/scraper.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["scraper", "web", "html", "extract", "agent", "ai"],
+  "license": "MIT",
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

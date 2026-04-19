@@ -1,0 +1,19 @@
+{
+  "name": "@agent-tools/sandbox",
+  "version": "0.1.0",
+  "description": "Safe code execution with timeouts and resource limits",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test src/__tests__/sandbox.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["sandbox", "execute", "safe", "timeout", "agent", "ai"],
+  "license": "MIT",
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

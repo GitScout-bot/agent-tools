@@ -1,0 +1,20 @@
+{
+  "name": "@agent-tools/token-counter",
+  "version": "0.1.0",
+  "description": "Fast token counting and estimation for OpenAI and Anthropic models",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test src/__tests__/counter.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["tokens", "tokenizer", "llm", "openai", "anthropic", "agent", "ai"],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

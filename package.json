@@ -1,0 +1,19 @@
+{
+  "name": "agent-tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A collection of standalone, well-tested tools for AI agents",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "eslint packages/*/src/**/*.ts",
+    "typecheck": "tsc --build packages/*/tsconfig.json"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
