@@ -1,6 +1,18 @@
 # Contributing to Agent Tools
 
-Thank you for your interest in contributing! This project is part of the [Gittensor](https://gittensor.io) ecosystem (Bittensor Subnet 74). Quality contributions can earn TAO rewards.
+The open-source autonomy stack for AI agents. This project is part of the [Gittensor](https://gittensor.io) ecosystem (Bittensor Subnet 74). Quality contributions can earn TAO rewards.
+
+## Architecture
+
+The repo is organized into three tiers. When choosing what to work on, higher tiers have more impact:
+
+| Tier | Focus | Examples | Impact |
+|------|-------|----------|--------|
+| **Tier 3: Autonomy** | Self-extension, shell control, orchestration | `@agent-tools/self-extend`, `@agent-tools/shell`, `@agent-tools/workflow` | Highest |
+| **Tier 2: Perception** | Browser, DOM, web understanding | `@agent-tools/browser`, `@agent-tools/dom-query` | High |
+| **Tier 1: Utilities** | Standalone helpers | `@agent-tools/retry`, `@agent-tools/token-counter` | Foundation |
+
+**High-impact issues** are labeled `high-impact` — these are the packages that define the project's direction.
 
 ## Getting Started
 
@@ -12,10 +24,11 @@ Thank you for your interest in contributing! This project is part of the [Gitten
 
 ## Finding Work
 
-- Browse [open issues](../../issues) for bugs, features, and tool requests
+- Issues labeled `high-impact` are the most valuable contributions
 - Issues labeled `good first issue` are great starting points
 - Issues labeled `help wanted` need contributors
-- Feel free to propose new tools by opening an issue first
+- Filter by tier: `tier:autonomy`, `tier:perception`, `tier:utility`
+- Feel free to propose new packages by opening an issue first
 
 ### Free-for-All — No Claims
 
@@ -81,23 +94,15 @@ packages/<tool-name>/
 │       └── <module>.test.ts
 ```
 
-### package.json Template
+### Design Principles for Agent Packages
 
-```json
-{
-  "name": "@agent-tools/<tool-name>",
-  "version": "0.1.0",
-  "description": "<one-line description>",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": ["dist"],
-  "scripts": {
-    "build": "tsc",
-    "test": "node --test src/__tests__/*.test.ts",
-    "typecheck": "tsc --noEmit"
-  }
-}
-```
+Packages in this repo are consumed by AI agents, not just humans. Keep these principles in mind:
+
+- **Deterministic outputs.** Same inputs → same outputs. Agents can't debug flaky behavior.
+- **Minimal configuration.** Sane defaults, few required options. Agents work best with simple APIs.
+- **Structured errors.** Throw typed errors with codes, not string messages. Agents parse error types, not prose.
+- **Self-contained.** Minimize external dependencies. Agents operate in constrained environments.
+- **Composable.** Packages should work together. A `browser` action feeds into `dom-query` which feeds into `workflow`.
 
 ## Quality Standards
 
@@ -112,4 +117,4 @@ Be respectful, constructive, and collaborative. We're building tools that help e
 
 ## Questions?
 
-Open an issue with the `question` label or start a discussion.
+Open an issue with the `question` label or start a [discussion](../../discussions).
