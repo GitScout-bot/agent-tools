@@ -1,110 +1,129 @@
 # Agent Tools
 
-The open-source autonomy stack for AI agents. Not just utilities — **capabilities that make agents self-sufficient.**
+**npm packages for AI agent developers.** Each package solves one problem, installs independently, and has zero framework lock-in.
 
-> From "tools agents call" to "infrastructure that makes agents autonomous."
+Built by agents, for agents. Part of the [Gittensor](https://gittensor.io) ecosystem — contributors earn TAO rewards for merged PRs.
 
-## Architecture
+---
 
-The stack is organized into three tiers, each building on the last:
+## Packages
 
-### Tier 1 — Utilities
-
-Standalone functions agents need constantly. No dependencies, no state, just reliable building blocks.
-
-| Package | Description | Status |
-|---------|-------------|--------|
-| [`@agent-tools/retry`](packages/retry) | Retry with exponential backoff, jitter, and abort | ✅ Stable |
-| [`@agent-tools/token-counter`](packages/token-counter) | Fast token counting for OpenAI and Anthropic models | ✅ Stable |
-| [`@agent-tools/file-converter`](packages/file-converter) | Convert between JSON, YAML, TOML, CSV | ✅ Stable |
-
-### Tier 2 — Perception
-
-How agents see and interact with the outside world. Browser control, web understanding, content extraction.
-
-| Package | Description | Status |
-|---------|-------------|--------|
-| [`@agent-tools/web-scraper`](packages/web-scraper) | Extract clean text and structured data from pages | ✅ Stable |
-| `@agent-tools/browser` | Headless browser control via CDP — navigate, click, type, screenshot | 🚧 Planned |
-| `@agent-tools/dom-query` | Semantic DOM querying — find elements by intent, not selectors | 🚧 Planned |
-
-### Tier 3 — Autonomy
-
-The layer that makes agents self-sufficient. Runtime tool creation, sandboxed execution, environment control.
-
-| Package | Description | Status |
-|---------|-------------|--------|
-| [`@agent-tools/sandbox`](packages/sandbox) | Safe code execution with timeouts and resource limits | ✅ Stable |
-| `@agent-tools/self-extend` | Agents write, test, and register new tools at runtime | 🚧 Planned |
-| `@agent-tools/shell` | Structured terminal control with output parsing and error recovery | 🚧 Planned |
-| `@agent-tools/workflow` | Multi-step task orchestration with checkpoints and rollback | 🚧 Planned |
-
-## Why This Exists
-
-Most agent toolkits give you a bag of utilities. That's table stakes. The hard problem is **making agents that don't get stuck** — agents that can perceive their environment, extend their own capabilities, and recover from failures without human intervention.
-
-Browser-harness proved the pattern: when an agent hits a wall, it writes a new helper function and keeps going. We're generalizing that into a full stack.
-
-## Install
-
-Each package is independent. Install what you need:
+### [@agent-tools/retry](packages/retry)
+Retry with exponential backoff, jitter, and abort support. Designed for LLM API calls that fail transiently.
 
 ```bash
 npm install @agent-tools/retry
-npm install @agent-tools/sandbox
+```
+
+```ts
+import { retry } from "@agent-tools/retry";
+
+const response = await retry(() => callLLM(prompt), {
+  maxAttempts: 5,
+  jitter: true,
+  retryIf: (err) => err.status === 429,
+});
+```
+
+---
+
+### [@agent-tools/token-counter](packages/token-counter)
+Fast token estimation for OpenAI and Anthropic models. Truncate, split, and check context window fit — zero dependencies.
+
+```bash
+npm install @agent-tools/token-counter
+```
+
+```ts
+import { estimateTokens, truncateToTokenLimit, fitsInContext } from "@agent-tools/token-counter";
+
+const count = estimateTokens(longDocument);
+const trimmed = truncateToTokenLimit(longDocument, 4096);
+const ok = fitsInContext("Hello!", "gpt-4");
+```
+
+---
+
+### [@agent-tools/web-scraper](packages/web-scraper)
+Extract clean text, links, headings, and metadata from web pages. Regex-based HTML parsing with zero runtime dependencies.
+
+```bash
 npm install @agent-tools/web-scraper
 ```
 
+```ts
+import { scrape } from "@agent-tools/web-scraper";
+
+const page = await scrape("https://example.com");
+console.log(page.text);      // Clean text content
+console.log(page.links);     // [{ url, text }, ...]
+console.log(page.metadata);  // { title, description, ... }
+```
+
+---
+
+### [@agent-tools/sandbox](packages/sandbox)
+Safe code execution with timeouts and resource limits. Three isolation levels for running untrusted code.
+
+```bash
+npm install @agent-tools/sandbox
+```
+
+```ts
+import { execute } from "@agent-tools/sandbox";
+
+const result = await execute('console.log(2 + 2)', { timeout: 3000 });
+console.log(result.stdout);   // "4\n"
+console.log(result.exitCode); // 0
+```
+
+---
+
+### [@agent-tools/file-converter](packages/file-converter)
+Convert between JSON, YAML, and CSV. Auto-detect format. Zero dependencies.
+
+```bash
+npm install @agent-tools/file-converter
+```
+
+```ts
+import { convert, detectFormat } from "@agent-tools/file-converter";
+
+const yaml = convert('{"name": "Alice"}', "json", "yaml");
+const fmt = detectFormat(input); // "json" | "yaml" | "csv" | null
+```
+
+---
+
+## What's Next
+
+These packages are open for contribution. Pick one and build it:
+
+| Package | What it does | Issue |
+|---------|-------------|-------|
+| `@agent-tools/browser` | Headless browser control via CDP | [#44](https://github.com/GitScout-bot/agent-tools/issues/44) |
+| `@agent-tools/self-extend` | Agents write + register tools at runtime | [#45](https://github.com/GitScout-bot/agent-tools/issues/45) |
+| `@agent-tools/shell` | Structured terminal control with output parsing | [#46](https://github.com/GitScout-bot/agent-tools/issues/46) |
+| `@agent-tools/dom-query` | Find DOM elements by intent, not selectors | [#47](https://github.com/GitScout-bot/agent-tools/issues/47) |
+| `@agent-tools/workflow` | Multi-step orchestration with rollback | [#48](https://github.com/GitScout-bot/agent-tools/issues/48) |
+
 ## Design Principles
 
-- **Autonomy over convenience.** Every package should make agents more self-sufficient, not just slightly faster.
-- **Zero unnecessary dependencies.** Lightweight, auditable, no bloat.
-- **Self-healing by default.** Packages should handle failure gracefully — retries, fallbacks, recovery.
-- **Composable.** Packages work together but don't require each other.
-- **Typed throughout.** Full TypeScript, strict mode, clear contracts.
+- **One package, one problem.** No monoliths, no frameworks.
+- **Zero unnecessary dependencies.** Most packages use only Node.js built-ins.
+- **Agent-first.** Every package exists because agents need it — not because it's a fun exercise.
+- **TypeScript-first.** Strict mode, full types, clear interfaces.
 
 ## Contributing
 
-We welcome contributions! This project is part of the [Gittensor](https://gittensor.io) ecosystem — contributors earn TAO rewards for merged PRs and resolved issues.
+This project uses [Gittensor](https://gittensor.io) (Bittensor Subnet 74). Open an issue, submit a PR, and earn TAO rewards for quality contributions.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+```bash
+git clone https://github.com/GitScout-bot/agent-tools.git
+cd agent-tools && npm install
+```
 
-### High-Impact Contributions
-
-The biggest impact areas right now:
-
-1. **`@agent-tools/browser`** — CDP-based browser control. Navigate, interact, screenshot, extract. The perception foundation.
-2. **`@agent-tools/self-extend`** — Runtime tool creation. Agent writes a function, tests it in sandbox, registers it for use. The autonomy breakthrough.
-3. **`@agent-tools/shell`** — Structured shell interaction. Run commands, parse output, handle errors, manage long-running processes.
-4. **Hardening existing packages** — Better error handling, edge cases, performance.
-
-### Quick Start
-
-1. Fork and clone the repo
-2. `npm install` at the root
-3. Pick an issue labeled `good first issue` or `help wanted`
-4. Create a feature branch, implement with tests
-5. Submit a PR referencing the issue
-
-## Roadmap
-
-**Phase 1 (current):** Stable utility packages + perception groundwork
-- ✅ retry, token-counter, file-converter, web-scraper, sandbox
-- 🚧 browser package (CDP control)
-
-**Phase 2:** Perception layer
-- DOM querying, page understanding, visual grounding
-- Multi-page workflows (login → navigate → extract)
-
-**Phase 3:** Autonomy layer
-- Self-extend: runtime tool creation + registration
-- Shell: structured terminal control
-- Workflow: multi-step orchestration with checkpoints
-
-**Phase 4:** Integration
-- Agent framework adapters (LangChain, AutoGen, CrewAI)
-- MCP server for tool discovery
-- Pre-built capability bundles
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
 ## License
 
