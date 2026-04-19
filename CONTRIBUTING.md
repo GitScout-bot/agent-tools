@@ -17,6 +17,12 @@ Thank you for your interest in contributing! This project is part of the [GitTen
 - Issues labeled `help wanted` need contributors
 - Feel free to propose new tools by opening an issue first
 
+### Free-for-All — No Claims
+
+Issues are never "claimed." There's no assignment, no dibs, no locking. Multiple people can work on the same issue simultaneously. **The first PR that passes automated checks and meets quality standards gets merged.** Everyone else closes theirs.
+
+This rewards speed *and* quality. Don't rush garbage — but don't sit on it either. If you see an issue you want, start building immediately. The race is on.
+
 ## Pull Request Process
 
 1. **One PR per issue.** Keep changes focused and reviewable.
@@ -28,8 +34,9 @@ Thank you for your interest in contributing! This project is part of the [GitTen
    npm run test
    npm run typecheck
    ```
-5. **Write a clear PR description.** Explain what changed and why. Reference the issue number.
-6. **Keep commits clean.** Squash WIP commits. Use clear commit messages.
+5. **Write a clear PR description.** Explain what changed and why.
+6. **Reference the issue.** Your PR body **must** include `Closes #N` (or `Fixes #N` / `Resolves #N`). PRs without an issue reference are auto-closed.
+7. **Keep commits clean.** Squash WIP commits. Use clear commit messages.
 
 ### Immutable PR Policy
 

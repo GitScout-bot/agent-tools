@@ -34,6 +34,28 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Require issue reference
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const hasRef = /(?:closes|fixes|resolves)\s+#\d+/i.test(body);
+            if (!hasRef) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: '❌ **PR rejected — no issue reference.**\n\nYour PR body must include `Closes #N` (or `Fixes #N` / `Resolves #N`) linking to an open issue. Every PR must solve a tracked issue.\n\nClose this PR, add the reference, and resubmit.',
+              });
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                state: 'closed',
+              });
+              core.setFailed('PR must reference an issue with Closes #N');
+            }
+
       - name: Check for common issues
         run: |
           echo "## Automated Review Checklist" > /tmp/review.md
