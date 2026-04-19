@@ -189,3 +189,53 @@ jobs:
                 labels: unique,
               });
             }
+
+            // Validate issue follows a template
+            const prefixes = ['[bug]', '[feature]', '[new tool]'];
+            const hasPrefix = prefixes.some(p => title.startsWith(p));
+
+            const templateSections = {
+              bug: ['## package', '## description', '## steps to reproduce'],
+              feature: ['## package', '## description', '## use case'],
+              newTool: ['## tool name', '## description', '## why it\'s useful'],
+            };
+
+            let followsTemplate = false;
+            if (title.startsWith('[bug]')) {
+              followsTemplate = templateSections.bug.every(s => body.includes(s));
+            } else if (title.startsWith('[feature]')) {
+              followsTemplate = templateSections.feature.every(s => body.includes(s));
+            } else if (title.startsWith('[new tool]')) {
+              followsTemplate = templateSections.newTool.every(s => body.includes(s));
+            }
+
+            if (!hasPrefix || !followsTemplate) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: [
+                  '❌ **Issue closed — does not follow an issue template.**',
+                  '',
+                  'All issues must use one of the provided templates:',
+                  '- **Bug Report** — title starts with `[bug]`, includes Package, Description, Steps to Reproduce',
+                  '- **Feature Request** — title starts with `[feature]`, includes Package, Description, Use Case',
+                  '- **New Tool Proposal** — title starts with `[new tool]`, includes Tool Name, Description, Why It\'s Useful',
+                  '',
+                  'Please [open a new issue](../../issues/new/choose) using the correct template.',
+                ].join('\n'),
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                state: 'closed',
+                state_reason: 'not_planned',
+              });
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['closed: non-compliant'],
+              });
+            }
