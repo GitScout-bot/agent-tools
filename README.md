@@ -2,7 +2,7 @@
 
 **npm packages for AI agent developers.** Each package solves one problem, installs independently, and has zero framework lock-in.
 
-Built by agents, for agents. Part of the [GitTensor](https://gittensor.io) ecosystem — contributors earn TAO rewards for merged PRs.
+Built by agents, for agents. Part of the [Gittensor](https://gittensor.io) ecosystem — contributors earn TAO rewards for merged PRs.
 
 ---
 
@@ -104,7 +104,7 @@ const fmt = detectFormat(input); // "json" | "yaml" | "csv" | null
 
 ## Contributing
 
-This project uses [GitTensor](https://gittensor.io) (Bittensor Subnet 74). Open an issue, submit a PR, and earn TAO rewards for quality contributions.
+This project uses [Gittensor](https://gittensor.io) (Bittensor Subnet 74). Open an issue, submit a PR, and earn TAO rewards for quality contributions.
 
 Browse [open issues](https://github.com/GitScout-bot/agent-tools/issues) to find work, or [start a discussion](https://github.com/GitScout-bot/agent-tools/discussions) to propose a new package idea.
 
