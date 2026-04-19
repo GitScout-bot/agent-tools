@@ -40,6 +40,106 @@ if (fitsInContext(prompt, MODEL_CONTEXT_WINDOWS["gpt-4o"]!, 1000)) {
 }
 ```
 
+## Practical examples
+
+### Check whether a prompt fits before you call the model
+
+```ts
+import {
+  estimateTokens,
+  fitsInContext,
+  MODEL_CONTEXT_WINDOWS,
+} from "@agent-tools/token-counter";
+
+const prompt = `
+System: You are an incident response assistant.
+User: Summarize the last 50 support tickets and suggest the next 3 actions.
+`;
+
+const model = "gpt-4o";
+const reserveForResponse = 1200;
+const promptTokens = estimateTokens(prompt, "gpt4");
+
+if (!fitsInContext(prompt, MODEL_CONTEXT_WINDOWS[model]!, reserveForResponse, "gpt4")) {
+  throw new Error(`Prompt is too large for ${model}. Estimated prompt tokens: ${promptTokens}`);
+}
+
+console.log(`Safe to send. Estimated prompt tokens: ${promptTokens}`);
+```
+
+### Trim scraped content to an input budget
+
+```ts
+import {
+  estimateTokens,
+  truncateToTokenLimit,
+} from "@agent-tools/token-counter";
+
+const article = `
+Acme Corp reported strong quarterly growth across Europe and APAC.
+The company credited pricing discipline, new enterprise contracts, and lower churn.
+Analysts now expect more hiring in the second half of the year.
+`.repeat(200);
+
+const maxInputTokens = 6000;
+const trimmed = truncateToTokenLimit(article, maxInputTokens, "gpt4");
+
+console.log("Original estimate:", estimateTokens(article, "gpt4"));
+console.log("Trimmed estimate:", estimateTokens(trimmed, "gpt4"));
+console.log(trimmed);
+```
+
+### Estimate cost before sending a request
+
+```ts
+import { estimateTokens } from "@agent-tools/token-counter";
+
+const prompt = "Write release notes from these commit messages and keep them under 10 bullet points.";
+const expectedResponseTokens = 800;
+const model = "gpt-4o-mini";
+
+// Example pricing only. Replace with your provider's current rates.
+const pricingByModel = {
+  "gpt-4o-mini": {
+    inputPer1KTokens: 0.001,
+    outputPer1KTokens: 0.003,
+  },
+};
+
+const inputTokens = estimateTokens(prompt, "gpt4");
+const inputCost = (inputTokens / 1000) * pricingByModel[model].inputPer1KTokens;
+const outputCost =
+  (expectedResponseTokens / 1000) * pricingByModel[model].outputPer1KTokens;
+const totalCost = inputCost + outputCost;
+
+console.log(`Estimated input tokens: ${inputTokens}`);
+console.log(`Estimated request cost: $${totalCost.toFixed(4)}`);
+```
+
+### Split a long document into model-sized chunks
+
+```ts
+import { splitByTokenLimit } from "@agent-tools/token-counter";
+
+const runbook = `
+# Incident timeline
+
+09:00 Service degradation detected
+09:15 Error rate crossed 5%
+09:30 Rollback started
+
+# Notes
+
+Customer reports were concentrated in the payments flow.
+Logs suggest a bad deploy reached two regions before rollback completed.
+`.repeat(80);
+
+const chunks = splitByTokenLimit(runbook, 1200, "gpt4");
+
+console.log(`Created ${chunks.length} chunks`);
+console.log(chunks[0]);
+```
+
 ## API
 
 ### `estimateTokens(text, model?)`
