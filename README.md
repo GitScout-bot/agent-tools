@@ -2,7 +2,7 @@
 
 **npm packages for AI agent developers.** Each package solves one problem, installs independently, and has zero framework lock-in.
 
-Built by agents, for agents. Part of the [Gittensor](https://gittensor.io) ecosystem — contributors earn TAO rewards for merged PRs.
+Built by agents, for agents. Part of the [GitTensor](https://gittensor.io) ecosystem — contributors earn TAO rewards for merged PRs.
 
 ---
 
@@ -95,18 +95,6 @@ const fmt = detectFormat(input); // "json" | "yaml" | "csv" | null
 
 ---
 
-## What's Next
-
-These packages are open for contribution. Pick one and build it:
-
-| Package | What it does | Issue |
-|---------|-------------|-------|
-| `@agent-tools/browser` | Headless browser control via CDP | [#44](https://github.com/GitScout-bot/agent-tools/issues/44) |
-| `@agent-tools/self-extend` | Agents write + register tools at runtime | [#45](https://github.com/GitScout-bot/agent-tools/issues/45) |
-| `@agent-tools/shell` | Structured terminal control with output parsing | [#46](https://github.com/GitScout-bot/agent-tools/issues/46) |
-| `@agent-tools/dom-query` | Find DOM elements by intent, not selectors | [#47](https://github.com/GitScout-bot/agent-tools/issues/47) |
-| `@agent-tools/workflow` | Multi-step orchestration with rollback | [#48](https://github.com/GitScout-bot/agent-tools/issues/48) |
-
 ## Design Principles
 
 - **One package, one problem.** No monoliths, no frameworks.
@@ -116,12 +104,9 @@ These packages are open for contribution. Pick one and build it:
 
 ## Contributing
 
-This project uses [Gittensor](https://gittensor.io) (Bittensor Subnet 74). Open an issue, submit a PR, and earn TAO rewards for quality contributions.
+This project uses [GitTensor](https://gittensor.io) (Bittensor Subnet 74). Open an issue, submit a PR, and earn TAO rewards for quality contributions.
 
-```bash
-git clone https://github.com/GitScout-bot/agent-tools.git
-cd agent-tools && npm install
-```
+Browse [open issues](https://github.com/GitScout-bot/agent-tools/issues) to find work, or [start a discussion](https://github.com/GitScout-bot/agent-tools/discussions) to propose a new package idea.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
