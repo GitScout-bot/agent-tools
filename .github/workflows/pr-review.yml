@@ -153,10 +153,11 @@ jobs:
           script: |
             const title = context.payload.issue.title.toLowerCase();
             const body = (context.payload.issue.body || '').toLowerCase();
+            const text = title + ' ' + body;
             const labels = [];
 
-            if (title.includes('[bug]')) labels.push('bug');
-            if (title.includes('[feature]')) labels.push('enhancement');
+            if (title.includes('[bug]') || text.includes('bug')) labels.push('bug');
+            if (title.includes('[feature]') || text.includes('feature request')) labels.push('enhancement');
             if (title.includes('[new tool]')) {
               labels.push('new-tool');
               labels.push('help wanted');
@@ -166,11 +167,25 @@ jobs:
               labels.push('good first issue');
             }
 
-            if (labels.length > 0) {
+            // Tier detection
+            const tier1 = ['token-counter', 'file-converter', 'retry', 'sandbox'];
+            const tier2 = ['web-scraper', 'dom-query', 'browser', 'screenshot', 'perception'];
+            const tier3 = ['self-extend', 'workflow', 'autonomy', 'shell', 'moe', 'pipeline', 'orchestrat'];
+
+            if (tier1.some(k => text.includes(k))) labels.push('tier:utility');
+            if (tier2.some(k => text.includes(k))) labels.push('tier:perception');
+            if (tier3.some(k => text.includes(k))) labels.push('tier:autonomy');
+
+            // Category detection
+            if (text.includes('integration') || text.includes('harness')) labels.push('integration');
+            if (text.includes('ci') || text.includes('workflow') || text.includes('pipeline')) labels.push('infrastructure');
+
+            const unique = [...new Set(labels)];
+            if (unique.length > 0) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                labels,
+                labels: unique,
               });
             }
