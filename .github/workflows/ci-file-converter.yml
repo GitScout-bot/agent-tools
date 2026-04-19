@@ -1,21 +1,17 @@
-name: CI — Root
+name: CI — file-converter
 
 on:
   push:
     branches: [main]
     paths:
-      - 'package.json'
-      - 'tsconfig.json'
-      - '.github/**'
+      - 'packages/file-converter/**'
   pull_request:
     branches: [main]
     paths:
-      - 'package.json'
-      - 'tsconfig.json'
-      - '.github/**'
+      - 'packages/file-converter/**'
 
 jobs:
-  all-packages:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,10 +29,10 @@ jobs:
         run: npm install
 
       - name: Type check
-        run: npm run typecheck
+        run: npm run typecheck -w packages/file-converter
 
       - name: Build
-        run: npm run build
+        run: npm run build -w packages/file-converter
 
       - name: Test
-        run: npm test
+        run: npm run test -w packages/file-converter
