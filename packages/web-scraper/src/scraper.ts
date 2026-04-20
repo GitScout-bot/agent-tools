@@ -186,13 +186,21 @@ export function extractText(html: string): string {
  * Extract all `<a>` links with their text and resolved URLs.
  */
 export function extractLinks(html: string, baseUrl?: string): Link[] {
-  const linkRegex = /<a\s[^>]*href\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+?)[\s>])[^>]*>([\s\S]*?)<\/a>/gi;
+  const anchorRegex = /<a\b((?:"[^"]*"|'[^']*'|[^'">])*)>([\s\S]*?)<\/a>/gi;
+  const hrefRegex = /\bhref\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+))/i;
   const links: Link[] = [];
 
   let match: RegExpExecArray | null;
-  while ((match = linkRegex.exec(html)) !== null) {
-    const rawUrl = match[1] ?? match[2] ?? match[3] ?? "";
-    const rawText = match[4] ?? "";
+  while ((match = anchorRegex.exec(html)) !== null) {
+    const attrs = match[1] ?? "";
+    const rawText = match[2] ?? "";
+    const hrefMatch = hrefRegex.exec(attrs);
+
+    if (!hrefMatch) {
+      continue;
+    }
+
+    const rawUrl = hrefMatch[1] ?? hrefMatch[2] ?? hrefMatch[3] ?? "";
 
     // Strip inner tags from link text
     const text = decodeEntities(rawText.replace(/<[^>]+>/g, " "))
