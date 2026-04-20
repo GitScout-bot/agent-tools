@@ -126,6 +126,19 @@ describe("extractLinks", () => {
     strictEqual(links[1].url, "https://test.dev/path");
     strictEqual(links[1].text, "Read more");
   });
+
+  it("continues to support unquoted href values", () => {
+    const html = `
+      <a href=/docs class='link'>Docs</a>
+      <a class="cta" href=https://example.com/pricing data-role='primary'>Pricing</a>
+    `;
+    const links = extractLinks(html, "https://agent.tools/base/");
+    strictEqual(links.length, 2);
+    strictEqual(links[0].url, "https://agent.tools/docs");
+    strictEqual(links[0].text, "Docs");
+    strictEqual(links[1].url, "https://example.com/pricing");
+    strictEqual(links[1].text, "Pricing");
+  });
 });
 
 // ---------------------------------------------------------------------------
