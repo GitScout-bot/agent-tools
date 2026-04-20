@@ -100,6 +100,45 @@ describe("extractLinks", () => {
     const links = extractLinks(html);
     strictEqual(links[0].text, "Bold link");
   });
+
+  it("handles single-quoted href values with mixed quoting styles", () => {
+    const html = `
+      <a href='https://example.com/docs' class="link" data-track='hero'>Docs</a>
+      <a class='nav-item' href='/pricing' aria-label="Pricing page">Pricing</a>
+    `;
+    const links = extractLinks(html, "https://agent.tools/base/");
+    strictEqual(links.length, 2);
+    strictEqual(links[0].url, "https://example.com/docs");
+    strictEqual(links[0].text, "Docs");
+    strictEqual(links[1].url, "https://agent.tools/pricing");
+    strictEqual(links[1].text, "Pricing");
+  });
+
+  it("keeps parsing when later quoted attributes contain >", () => {
+    const html = `
+      <a href='https://example.com/docs' data-title='A > B' class='link'>Example</a>
+      <a class="cta" href='https://test.dev/path' data-note="1 > 0"><strong>Read</strong> more</a>
+    `;
+    const links = extractLinks(html);
+    strictEqual(links.length, 2);
+    strictEqual(links[0].url, "https://example.com/docs");
+    strictEqual(links[0].text, "Example");
+    strictEqual(links[1].url, "https://test.dev/path");
+    strictEqual(links[1].text, "Read more");
+  });
+
+  it("continues to support unquoted href values", () => {
+    const html = `
+      <a href=/docs class='link'>Docs</a>
+      <a class="cta" href=https://example.com/pricing data-role='primary'>Pricing</a>
+    `;
+    const links = extractLinks(html, "https://agent.tools/base/");
+    strictEqual(links.length, 2);
+    strictEqual(links[0].url, "https://agent.tools/docs");
+    strictEqual(links[0].text, "Docs");
+    strictEqual(links[1].url, "https://example.com/pricing");
+    strictEqual(links[1].text, "Pricing");
+  });
 });
 
 // ---------------------------------------------------------------------------
