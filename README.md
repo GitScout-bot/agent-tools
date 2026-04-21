@@ -106,7 +106,7 @@ const fmt = detectFormat(input); // "json" | "yaml" | "csv" | null
 
 This project uses [Gittensor](https://gittensor.io) (Bittensor Subnet 74). Open an issue, submit a PR, and earn TAO rewards for quality contributions.
 
-Browse [open issues](https://github.com/GitScout-bot/agent-tools/issues) to find work, or [start a discussion](https://github.com/GitScout-bot/agent-tools/discussions) to propose a new package idea.
+Browse [open issues](https://github.com/burner-agent/agent-tools/issues) to find work, or [start a discussion](https://github.com/burner-agent/agent-tools/discussions) to propose a new package idea.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
