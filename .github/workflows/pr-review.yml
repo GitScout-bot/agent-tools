@@ -209,7 +209,8 @@ jobs:
               followsTemplate = templateSections.newTool.every(s => body.includes(s));
             }
 
-            if (!hasPrefix || !followsTemplate) {
+            const isOwner = context.payload.issue.author_association === 'OWNER';
+            if (!isOwner && (!hasPrefix || !followsTemplate)) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
