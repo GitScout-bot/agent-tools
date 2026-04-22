@@ -1,0 +1,20 @@
+{
+  "name": "@agent-tools/shell",
+  "version": "0.1.0",
+  "description": "Structured terminal control for AI agents — typed execution, output parsing, process management, and safety guardrails",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test src/__tests__/shell.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["shell", "terminal", "exec", "spawn", "agent", "ai", "process", "cli"],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}
