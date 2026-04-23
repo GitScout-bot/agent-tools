@@ -126,6 +126,50 @@ describe("parseYAML", () => {
     assert.equal(result.msg, "hello world");
     assert.equal(result.other, "single");
   });
+
+  it("parses literal block scalar (|)", () => {
+    const yaml = "description: |\n  This is a\n  multiline string\n";
+    const result = parseYAML(yaml) as Record<string, string>;
+    assert.equal(result.description, "This is a\nmultiline string\n");
+  });
+
+  it("parses folded block scalar (>)", () => {
+    const yaml = "description: >\n  This is a\n  folded string\n";
+    const result = parseYAML(yaml) as Record<string, string>;
+    assert.equal(result.description, "This is a folded string\n");
+  });
+
+  it("parses block scalar with strip chomping (|-)", () => {
+    const yaml = "description: |-\n  No trailing newline\n";
+    const result = parseYAML(yaml) as Record<string, string>;
+    assert.equal(result.description, "No trailing newline");
+  });
+
+  it("parses block scalar with keep chomping (|+)", () => {
+    const yaml = "description: |+\n  Keep trailing\n";
+    const result = parseYAML(yaml) as Record<string, string>;
+    assert.equal(result.description, "Keep trailing\n");
+  });
+
+  it("parses folded block scalar with strip chomping (>-)", () => {
+    const yaml = "description: >-\n  Folded and\n  stripped\n";
+    const result = parseYAML(yaml) as Record<string, string>;
+    assert.equal(result.description, "Folded and stripped");
+  });
+
+  it("parses block scalar alongside other keys", () => {
+    const yaml = "title: Hello\nbody: |\n  Line one\n  Line two\ncount: 42\n";
+    const result = parseYAML(yaml) as Record<string, unknown>;
+    assert.equal(result.title, "Hello");
+    assert.equal(result.body, "Line one\nLine two\n");
+    assert.equal(result.count, 42);
+  });
+
+  it("parses folded block with paragraph break", () => {
+    const yaml = "text: >\n  First paragraph\n  continues here\n\n  Second paragraph\n";
+    const result = parseYAML(yaml) as Record<string, string>;
+    assert.equal(result.text, "First paragraph continues here\nSecond paragraph\n");
+  });
 });
 
 describe("toYAML", () => {

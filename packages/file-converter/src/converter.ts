@@ -131,16 +131,16 @@ function escapeCSVField(value: string): string {
  * - Quoted strings (single and double)
  * - Numbers, booleans (true/false), null
  *
- * NOT supported: anchors, aliases, multiline strings, tags, flow style, etc.
+ * - Block scalars: literal (`|`) and folded (`>`) with chomping (`-`, `+`)
+ *
+ * NOT supported: anchors, aliases, tags, flow style, etc.
  */
 export function parseYAML(input: string): unknown {
   const lines = input.split(/\r?\n/);
-  const filtered = lines.filter(
-    (l) => l.trim() !== "" && !l.trim().startsWith("#"),
-  );
-  if (filtered.length === 0) return null;
+  if (lines.every((l) => l.trim() === "" || l.trim().startsWith("#")))
+    return null;
 
-  return parseYAMLBlock(filtered, 0, 0).value;
+  return parseYAMLBlock(lines, 0, 0).value;
 }
 
 interface ParseResult {
@@ -153,23 +153,94 @@ function lineIndent(line: string): number {
   return match ? match[1].length : 0;
 }
 
+function isSkippable(line: string): boolean {
+  const t = line.trim();
+  return t === "" || t.startsWith("#");
+}
+
+function skipBlanks(lines: string[], i: number): number {
+  while (i < lines.length && isSkippable(lines[i])) i++;
+  return i;
+}
+
+const BLOCK_SCALAR_RE = /^([|>])([+-]?)$/;
+
+function parseBlockScalar(
+  lines: string[],
+  start: number,
+  indicator: string,
+  chomp: string,
+): { text: string; consumed: number } {
+  let i = start;
+  while (i < lines.length && lines[i].trim() === "") i++;
+  if (i >= lines.length) return { text: "", consumed: i - start };
+
+  const blockIndent = lineIndent(lines[i]);
+  if (blockIndent === 0) return { text: "", consumed: 0 };
+
+  const collected: string[] = [];
+  while (i < lines.length) {
+    const line = lines[i];
+    if (line.trim() === "") {
+      collected.push("");
+      i++;
+      continue;
+    }
+    if (lineIndent(line) < blockIndent) break;
+    collected.push(line.slice(blockIndent));
+    i++;
+  }
+
+  while (collected.length > 0 && collected[collected.length - 1] === "")
+    collected.pop();
+
+  let text: string;
+  if (indicator === "|") {
+    text = collected.join("\n");
+  } else {
+    const paragraphs: string[][] = [[]];
+    for (const line of collected) {
+      if (line === "") {
+        paragraphs.push([]);
+      } else {
+        paragraphs[paragraphs.length - 1].push(line);
+      }
+    }
+    text = paragraphs
+      .map((p) => p.join(" "))
+      .filter((p) => p !== "")
+      .join("\n");
+  }
+
+  if (chomp === "+") {
+    text += "\n";
+  } else if (chomp !== "-") {
+    text += "\n";
+  }
+  if (chomp === "-") {
+    // strip trailing, already done
+  }
+
+  return { text, consumed: i - start };
+}
+
 function parseYAMLBlock(
   lines: string[],
   start: number,
   baseIndent: number,
 ): ParseResult {
-  if (start >= lines.length) return { value: null, consumed: 0 };
+  const s = skipBlanks(lines, start);
+  if (s >= lines.length) return { value: null, consumed: s - start };
 
-  const firstLine = lines[start];
-  const trimmed = firstLine.trim();
+  const trimmed = lines[s].trim();
 
-  // Check if this block is an array (first line starts with "- ")
   if (trimmed.startsWith("- ")) {
-    return parseYAMLArray(lines, start, baseIndent);
+    const res = parseYAMLArray(lines, s, baseIndent);
+    return { value: res.value, consumed: s - start + res.consumed };
   }
 
-  // Otherwise treat as a mapping
-  return parseYAMLMapping(lines, start, baseIndent);
+  const res = parseYAMLMapping(lines, s, baseIndent);
+  return { value: res.value, consumed: s - start + res.consumed };
 }
 
 function parseYAMLArray(
@@ -181,6 +252,9 @@ function parseYAMLArray(
   let i = start;
 
   while (i < lines.length) {
+    i = skipBlanks(lines, i);
+    if (i >= lines.length) break;
+
     const indent = lineIndent(lines[i]);
     if (indent < baseIndent) break;
     if (indent !== baseIndent) break;
@@ -190,25 +264,19 @@ function parseYAMLArray(
 
     const afterDash = trimmed.slice(2);
 
-    // Check if the item itself contains a key: value (inline mapping start)
     if (afterDash.includes(": ") || afterDash.endsWith(":")) {
-      // Collect child lines for a nested block starting from this "- key: val"
-      // Rewrite the current line as if it were a normal mapping entry,
-      // then gather any further indented lines beneath it.
       const childLines: string[] = [];
       const childIndent = baseIndent + 2;
-      // Create a synthetic line from the part after "- "
       childLines.push(" ".repeat(childIndent) + afterDash);
       let j = i + 1;
-      while (j < lines.length && lineIndent(lines[j]) > baseIndent) {
+      while (j < lines.length && (isSkippable(lines[j]) || lineIndent(lines[j]) > baseIndent)) {
         childLines.push(lines[j]);
         j++;
       }
       const sub = parseYAMLBlock(childLines, 0, childIndent);
       result.push(sub.value);
-      i = i + 1 + (j - (i + 1));
+      i = j;
     } else {
-      // Simple scalar array item
       result.push(parseYAMLScalar(afterDash));
       i++;
     }
@@ -226,6 +294,9 @@ function parseYAMLMapping(
   let i = start;
 
   while (i < lines.length) {
+    i = skipBlanks(lines, i);
+    if (i >= lines.length) break;
+
     const indent = lineIndent(lines[i]);
     if (indent < baseIndent) break;
     if (indent !== baseIndent) {
@@ -243,9 +314,16 @@ function parseYAMLMapping(
     const key = parseYAMLScalar(colonMatch[1].trim()) as string;
     const inlineValue = colonMatch[2];
 
+    const blockMatch = inlineValue?.match(BLOCK_SCALAR_RE);
+    if (blockMatch) {
+      const bs = parseBlockScalar(lines, i + 1, blockMatch[1], blockMatch[2]);
+      result[key] = bs.text;
+      i = i + 1 + bs.consumed;
+      continue;
+    }
+
     if (inlineValue === "" || inlineValue === undefined) {
-      // Value is a nested block on subsequent lines
-      const nextIdx = i + 1;
+      const nextIdx = skipBlanks(lines, i + 1);
       if (nextIdx < lines.length) {
         const nextIndent = lineIndent(lines[nextIdx]);
         if (nextIndent > baseIndent) {
