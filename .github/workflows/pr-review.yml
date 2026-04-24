@@ -156,7 +156,8 @@ jobs:
             const text = title + ' ' + body;
             const labels = [];
 
-            if (title.includes('[bug]') || text.includes('bug')) labels.push('bug');
+            const isNewTool = title.includes('[new tool]');
+            if (title.includes('[bug]') || (!isNewTool && text.includes('bug'))) labels.push('bug');
             if (title.includes('[feature]') || text.includes('feature request')) labels.push('enhancement');
             if (title.includes('[new tool]')) {
               labels.push('new-tool');
